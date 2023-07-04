@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Prueba2</string>
+    <string name="ingrese_el_id_del_manga">Ingrese el ID del manga</string>
+    <string name="ver_todos">Ver Todos</string>
+    <string name="imagen">Imagen</string>
+    <string name="imagenbtn">imagenBtn</string>
+</resources>
