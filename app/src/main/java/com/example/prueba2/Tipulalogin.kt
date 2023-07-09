@@ -4,61 +4,76 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.content.Intent
-import android.view.View
+import android.widget.EditText
+import android.widget.ImageButton
 import okhttp3.*
+import com.squareup.picasso.Picasso
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.IOException
-import android.widget.Toast
 
 class Tipulalogin : AppCompatActivity() {
 
-    private val url = "http://10.0.2.2:5000/login/" // URL de la API
-    private val client = OkHttpClient()
+    private lateinit var moveButton: Button
+    private lateinit var emailEditText: EditText
+    private lateinit var passwordEditText: EditText
+    private lateinit var imageButton: ImageButton
+    private val url = "http://10.0.2.2:5000/login" // URL de la API
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tipulalogin)
-    }
 
-    fun onIngresarButtonClick(view: View) {
-        val requestBody = FormBody.Builder()
-            .add("email", "example@example.com") // Reemplaza con el correo electrónico correcto
-            .add("password", "password123") // Reemplaza con la contraseña correcta
-            .build()
+        moveButton = findViewById(R.id.ingresar)
+        emailEditText = findViewById(R.id.editTextTextEmailAddress)
+        passwordEditText = findViewById(R.id.editTextTextPassword)
+        imageButton = findViewById(R.id.imageButton)
 
-        val request = Request.Builder()
-            .url(url)
-            .post(requestBody)
-            .build()
+        // Cargar imagen utilizando Picasso
+        Picasso.get().load("https://static.wikia.nocookie.net/bocchi-the-rock/images/b/b5/Hitori_Gotoh_Dise%C3%B1o.png/revision/latest/scale-to-width-down/204?cb=20230119235405&path-prefix=es")
+            .into(imageButton)
 
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                // Manejo de errores en caso de que la solicitud falle
-                e.printStackTrace()
-            }
+        // Acción al hacer clic en el ImageButton
+        imageButton.setOnClickListener{
+            val intent = Intent(this@Tipulalogin , MangasG::class.java)
+            startActivity(intent)
+        }
 
-            override fun onResponse(call: Call, response: Response) {
-                response.use {
-                    if (!response.isSuccessful) {
-                        // Manejo de errores en caso de que la respuesta no sea exitosa
-                        throw IOException("Unexpected code $response")
-                    }
+        moveButton.setOnClickListener {
+            val email = emailEditText.text.toString()
+            val password = passwordEditText.text.toString()
 
-                    // Obtener el cuerpo de la respuesta como cadena de texto
-                    val responseBody = response.body?.string()
+            val client = OkHttpClient()
 
-                    // Verificar si la respuesta contiene los datos del usuario o un error
-                    if (responseBody?.contains("error") == true) {
-                        // Mostrar mensaje de "Credenciales incorrectas"
-                        runOnUiThread {
-                            Toast.makeText(applicationContext, "Credenciales incorrectas", Toast.LENGTH_SHORT).show()
+            val formBody = FormBody.Builder()
+                .add("email", email)
+                .add("password", password)
+                .build()
+
+            val request = Request.Builder()
+                .url(url)
+                .post(formBody)
+                .build()
+
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    e.printStackTrace()
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    val responseData = response.body?.string()
+
+                    runOnUiThread {
+                        if (responseData == "usuario_encontrado") {
+                            val intent = Intent(this@Tipulalogin, MangasG::class.java)
+                            startActivity(intent)
+                        } else {
+                            println("Error: Usuario no encontrado")
                         }
-                    } else {
-                        // Redireccionar a MainActivity.kt
-                        val intent = Intent(this@Tipulalogin, MainActivity::class.java)
-                        startActivity(intent)
                     }
                 }
-            }
-        })
+            })
+        }
     }
 }
