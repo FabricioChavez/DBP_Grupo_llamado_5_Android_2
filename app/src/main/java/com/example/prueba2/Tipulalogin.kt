@@ -11,6 +11,8 @@ import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaType
+import org.json.JSONObject
 import java.io.IOException
 
 class Tipulalogin : AppCompatActivity() {
@@ -19,7 +21,7 @@ class Tipulalogin : AppCompatActivity() {
     private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var imageButton: ImageButton
-    private val url = "http://10.0.2.2:5000/login" // URL de la API
+    private val url = "http://18.235.183.107:8000/login" // URL de la API
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,14 +48,13 @@ class Tipulalogin : AppCompatActivity() {
 
             val client = OkHttpClient()
 
-            val formBody = FormBody.Builder()
-                .add("email", email)
-                .add("password", password)
-                .build()
+            // Cambio a MediaType para JSON y formamos el cuerpo de la solicitud
+            val JSON = "application/json; charset=utf-8".toMediaType()
+            val body = RequestBody.create(JSON, "{\"email\":\"$email\",\"password\":\"$password\"}")
 
             val request = Request.Builder()
                 .url(url)
-                .post(formBody)
+                .post(body)
                 .build()
 
             client.newCall(request).enqueue(object : Callback {
@@ -64,12 +65,21 @@ class Tipulalogin : AppCompatActivity() {
                 override fun onResponse(call: Call, response: Response) {
                     val responseData = response.body?.string()
 
-                    runOnUiThread {
-                        if (responseData == "usuario_encontrado") {
-                            val intent = Intent(this@Tipulalogin, MangasG::class.java)
-                            startActivity(intent)
+                    if (responseData != null) {
+                        val jsonResponse = JSONObject(responseData)
+
+                        // Verificamos si la respuesta tiene la llave 'error'
+                        if(jsonResponse.has("error")) {
+                            val errorMsg = jsonResponse.getString("error")
+                            runOnUiThread {
+                                println("Error: $errorMsg")
+                            }
                         } else {
-                            println("Error: Usuario no encontrado")
+                            // En caso de éxito, redirigimos a la siguiente activity
+                            runOnUiThread {
+                                val intent = Intent(this@Tipulalogin, prueba::class.java)
+                                startActivity(intent)
+                            }
                         }
                     }
                 }

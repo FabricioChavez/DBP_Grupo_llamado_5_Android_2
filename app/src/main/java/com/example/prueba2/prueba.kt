@@ -17,7 +17,7 @@ class prueba : AppCompatActivity() {
     private lateinit var button_send_get: Button
     private lateinit var textView_response: TextView
     private lateinit var ImageView :ImageView
-    private val url = "http://10.0.2.2:5000/manga/"// URL de la API
+    private val url = "http://18.235.183.107:8000/manga/"// URL de la API
 
 
     override fun onCreate(savedInstanceState: Bundle?) {

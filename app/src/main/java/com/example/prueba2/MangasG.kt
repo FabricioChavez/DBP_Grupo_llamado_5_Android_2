@@ -25,7 +25,7 @@ class MangasG : AppCompatActivity() {
     private lateinit var mangas_ver_btn : Button
     private lateinit var manga_ver_btn : ImageButton
     private lateinit var manga_text : TextView
-    private val url = "http://10.0.2.2:5000/manga"
+    private val url = "http://18.235.183.107:8000/manga"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
